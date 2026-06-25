@@ -1,32 +1,21 @@
-cmake_minimum_required(VERSION 3.18)
-project(DiTensor VERSION 0.1.0 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.14)
+project(DiTensor LANGUAGES CXX CUDA)
 
-# 编译选项设置
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(CUDAToolkit REQUIRED)
 
-# 开启核心库和测试的开关
-option(BUILD_TESTS "Build DiTensor tests" ON)
-
-# --- 1. 引入 Google Test (FetchContent 方式) ---
-if(BUILD_TESTS)
-    include(FetchContent)
-    FetchContent_Declare(
-      googletest
-      URL https://github.com/google/googletest/archive/refs/heads/main.zip
-    )
-    # 对于 Windows/MSVC 建议设置, Linux/macOS 忽略
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-endif()
-
-# --- 2. 包含子目录 ---
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
+# ===== 核心库 =====
+include_directories(/usr/local/cuda/include)
 add_subdirectory(csrc)
+# 🛠️ 不管什么 target，全项目所有 cpp 统统强制注入 CUDA 头文件路径
+
+
+# ===== 测试 =====
+option(BUILD_TESTS "Build unit tests" ON)
 
 if(BUILD_TESTS)
+    add_subdirectory(third_party/googletest)
     enable_testing()
     add_subdirectory(test)
 endif()

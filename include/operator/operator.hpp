@@ -1,0 +1,22 @@
+#pragma once
+#include <memory>
+#include <vector>
+#include <string>
+#include "tensor.hpp"
+#include "core/types.hpp"
+
+namespace ditensor {
+    class Operator {
+       public:
+        virtual ~Operator()  = default;
+
+        virtual std::string get_name() const = 0;
+
+        virtual void infer_shape(const std::vector<Tensor *> & inputs,
+                                 std::vector<std::vector<int>> & outputs) = 0;
+        
+        // check shape and data type 
+        virtual void forward(const std::vector<Tensor *>& inputs,
+                             std::vector<Tensor*> & outputs) = 0;
+    };
+}

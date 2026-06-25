@@ -1,0 +1,18 @@
+#pragma once
+#include "operator/operator.hpp"
+#include "kernel/kernel.hpp"
+
+namespace ditensor {
+    class AddOperator : Operator {
+    public:
+        AddOperator();
+        ~AddOperator() override = default;
+
+        std::string get_name() { return "AddOperator";}
+        void infer_shape(const std::vector<const Tensor*>& inputs,
+                     std::vector<std::vector<int>>& output_shapes) override;
+        void forward(const std::vector<Tensor*>& inputs,
+                 std::vector<Tensor*>& outputs) override;
+        
+    };
+}

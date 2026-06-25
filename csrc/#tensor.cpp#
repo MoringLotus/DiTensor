@@ -1,5 +1,4 @@
-#pragma once
-64;2500;0c#include "tensor.hpp"
+#pragma once#include "tensor.hpp"
 #include "core/allocator.hpp"
 #include "core/types.hpp"
 #include <cuda_runtime.h>
@@ -17,7 +16,7 @@ namespace ditensor {
         if(this->device_ == DeviceType::CPU && target == DeviceType::CUDA){
             void* d_ptr = nullptr;
             if(cudaMalloc(&d_ptr, bytes) != cudaSuccess){
-                 throw std::runtime_error("CUDA Malloc Failed");
+                throw std::runtime_error("CUDA Malloc Failed");
             }
             cudaMemcpy(d_ptr, this->data_ptr_.get(), bytes, cudaMemcpyHostToDevice);
 

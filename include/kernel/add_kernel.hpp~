@@ -1,0 +1,19 @@
+#pragma once
+11;rgb:158e/193a/1e75#include <vector>
+#include "kernel/kernel.hpp"
+#include "tensor.hpp"
+
+namespace ditensor {
+
+
+class AddKernelCPU : public Kernel {
+public:
+    AddKernelCPU() = default;
+    ~AddKernelCPU() override = default;
+    DeviceType device_type() const override { return DeviceType::CPU; }
+    void compute(const std::vector<Tensor*>& inputs,
+                 std::vector<Tensor*>& outputs) override;
+};
+
+
+} // namespace ditensor

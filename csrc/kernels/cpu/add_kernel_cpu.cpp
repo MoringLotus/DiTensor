@@ -1,0 +1,51 @@
+#include "kernel/add_kernel.hpp"
+#include <stdexcept>
+
+namespace ditensor {
+
+// ==================== 核心数值计算模板 ====================
+// 使用 template 让编译器针对具体类型生成最极致的指针循环代码，
+// 这样有利于编译器触发 AVX2/AVX512 向量化自动展开（Auto-vectorization）。
+template <typename T>
+static void cpu_add_impl(const T* x, const T* y, T* out, size_t numel) {
+    for (size_t i = 0; i < numel; ++i) {
+        out[i] = x[i] + y[i];
+    }
+}
+
+// ==================== CpuAddKernel 实现 ====================
+void AddKernelCPU::compute(const std::vector<Tensor*>& inputs,
+                           std::vector<Tensor*>& outputs) {
+    // 1. 解包 Tensor（安全边界已经在 Operator 层通过 infer_shape 守住了，这里直接裸奔取数据）
+    const Tensor* tensor_x = inputs[0];
+    const Tensor* tensor_y = inputs[1];
+    Tensor* tensor_out = outputs[0];
+
+    // 2. 获取张量的基础元数据
+    size_t numel = tensor_x->numel();
+    DataType dtype = tensor_x->dtype();
+
+    // 3. 运行时 DataType 分发 (Runtime Dispatching)
+    // 根据运行时具体的 DType，解包成对应的 C++ 裸指针（float* / int*）传入模板函数
+    if (dtype == DataType::FLOAT32) {
+        cpu_add_impl<float>(
+            tensor_x->data<float>(), 
+            tensor_y->data<float>(), 
+            tensor_out->data<float>(), 
+            numel
+        );
+    } 
+    else if (dtype == DataType::INT32) {
+        cpu_add_impl<int>(
+            tensor_x->data<int>(), 
+            tensor_y->data<int>(), 
+            tensor_out->data<int>(), 
+            numel
+        );
+    } 
+    else {
+        throw std::runtime_error("[CpuAddKernel] Unsupported DataType for CPU Add computation.");
+    }
+}
+
+} // namespace ditensor
